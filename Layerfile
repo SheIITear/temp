@@ -1,15 +1,51 @@
-#This is an example webapp.io configuration for NodeJS
+# Use the same base VM as in the original file
 FROM vm/ubuntu:18.04
-# To note: Layerfiles create VMs, *not* containers!
 
-# Install node
+# Install node and npm
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash && \
-    apt install nodejs && \
+    apt install -y nodejs && \
     rm -f /etc/apt/sources.list.d/nodesource.list
-RUN npm install -g http-server
 
+# Install ts-node globally and other dependencies
+RUN npm install -g ts-node
+
+# Copy all project files
 COPY . .
-RUN echo 'hello' > hello.html
 
-RUN BACKGROUND http-server -p 8000
+# Install project dependencies
+RUN npm install
+
+# Set up an HTTP server that runs ts-node neko.ts on every request
+COPY neko.ts .
+
+RUN echo "\
+const http = require('http');\n\
+const { exec } = require('child_process');\n\
+const port = 8000;\n\
+\n\
+const server = http.createServer((req, res) => {\n\
+    exec('ts-node neko.ts', (error, stdout, stderr) => {\n\
+        if (error) {\n\
+            res.writeHead(500, {'Content-Type': 'text/plain'});\n\
+            res.end(`Error: ${error.message}`);\n\
+            return;\n\
+        }\n\
+        if (stderr) {\n\
+            res.writeHead(500, {'Content-Type': 'text/plain'});\n\
+            res.end(`Stderr: ${stderr}`);\n\
+            return;\n\
+        }\n\
+        res.writeHead(200, {'Content-Type': 'text/plain'});\n\
+        res.end(stdout);\n\
+    });\n\
+});\n\
+\n\
+server.listen(port, () => {\n\
+    console.log(`Server running at http://localhost:${port}/`);\n\
+});" > server.js
+
+# Run the custom HTTP server in the background
+RUN BACKGROUND node server.js
+
+# Expose the app on port 8000
 EXPOSE WEBSITE http://localhost:8000
