@@ -1,8 +1,8 @@
 # Use the same base VM as in the original file
-FROM vm/ubuntu:18.04
+FROM vm/ubuntu:24.04
 
 # Install node and npm
-RUN curl -fsSL https://deb.nodesource.com/setup_17.x | bash && \
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash && \
     apt install -y nodejs && \
     rm -f /etc/apt/sources.list.d/nodesource.list
 
