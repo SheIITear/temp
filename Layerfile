@@ -18,7 +18,6 @@ RUN npm install
 # Set up an HTTP server that runs ts-node neko.ts on every request
 COPY neko.ts .
 
-RUN node server.js
 
 # Run the custom HTTP server in the background
 RUN BACKGROUND node server.js
