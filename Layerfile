@@ -1,5 +1,5 @@
 # Use the same base VM as in the original file
-FROM vm/ubuntu:24.04
+FROM vm/ubuntu:22.04
 
 # Install node and npm
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash && \
