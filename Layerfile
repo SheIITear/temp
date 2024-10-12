@@ -18,31 +18,7 @@ RUN npm install
 # Set up an HTTP server that runs ts-node neko.ts on every request
 COPY neko.ts .
 
-RUN echo "\
-const http = require('http');\n\
-const { exec } = require('child_process');\n\
-const port = 8000;\n\
-\n\
-const server = http.createServer((req, res) => {\n\
-    exec('ts-node neko.ts', (error, stdout, stderr) => {\n\
-        if (error) {\n\
-            res.writeHead(500, {'Content-Type': 'text/plain'});\n\
-            res.end(`Error: ${error.message}`);\n\
-            return;\n\
-        }\n\
-        if (stderr) {\n\
-            res.writeHead(500, {'Content-Type': 'text/plain'});\n\
-            res.end(`Stderr: ${stderr}`);\n\
-            return;\n\
-        }\n\
-        res.writeHead(200, {'Content-Type': 'text/plain'});\n\
-        res.end(stdout);\n\
-    });\n\
-});\n\
-\n\
-server.listen(port, () => {\n\
-    console.log(`Server running at http://localhost:${port}/`);\n\
-});" > server.js
+RUN node server.js
 
 # Run the custom HTTP server in the background
 RUN BACKGROUND node server.js
